@@ -19,7 +19,7 @@
 --      RLS is an open data leak on Supabase (anon key has table access by
 --      default) — flagging this rather than silently shipping it insecure.
 -- ============================================================================
-
+-- comment
 -- Required extensions
 create extension if not exists "pgcrypto";   -- gen_random_uuid()
 create extension if not exists "pg_net";     -- allows triggers to call Edge Functions via HTTP
