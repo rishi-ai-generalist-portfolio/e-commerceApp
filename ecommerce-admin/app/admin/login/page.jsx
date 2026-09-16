@@ -31,17 +31,18 @@ export default function AdminLoginPage() {
     // script.async = true;
     //script.onload = () => {
     if (!window.google || !buttonRef.current) return;
-      window.google.accounts.id.initialize({
+    console.log("The google client id is : ", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+    window.google.accounts.id.initialize({
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
         callback: handleGoogleCredential,
-      });
-      window.google.accounts.id.renderButton(buttonRef.current, {
+    });
+    window.google.accounts.id.renderButton(buttonRef.current, {
         theme: "outline",
         size: "large",
         text: "signin_with",
         shape: "pill",
         width: 280,
-      });
+    });
     //};
     if (window.google) {
       initializeGoogle();
