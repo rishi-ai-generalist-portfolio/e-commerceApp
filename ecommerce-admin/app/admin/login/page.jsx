@@ -15,45 +15,50 @@ export default function AdminLoginPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    //const script = document.createElement("script");
+    // 1. Look for an existing script tag to prevent duplicates during Fast Refresh
     let script = document.getElementById("google-gsi-script");
+   
     if (!script) {
       script = document.createElement("script");
       script.id = "google-gsi-script";
-      script.src = "https://google.com";
+      // USE THIS: The correct official Identity Services URL
+      script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       document.body.appendChild(script);
     }
 
+    // 2. Safely bundle the logic inside a named function
+    const initializeGoogle = () => {
+      if (!window || !window.google || !window.google.accounts || !buttonRef.current) return;
+     
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      console.log("Client id found inside initialize is:", clientId);
+     
+      if (!clientId) {
+        console.error("CRITICAL: NEXT_PUBLIC_GOOGLE_CLIENT_ID is not loaded.");
+        return;
+      }
 
-
-    //script.src = "https://accounts.google.com/gsi/client";
-    // script.async = true;
-    //script.onload = () => {
-    if (!window.google || !buttonRef.current) return;
-    console.log("The google client id is : ", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
-    window.google.accounts.id.initialize({
-        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      window.google.accounts.id.initialize({
+        client_id: clientId,
         callback: handleGoogleCredential,
-    });
-    window.google.accounts.id.renderButton(buttonRef.current, {
+      });
+
+      window.google.accounts.id.renderButton(buttonRef.current, {
         theme: "outline",
         size: "large",
         text: "signin_with",
         shape: "pill",
         width: 280,
-    });
-    //};
-    if (window.google) {
+      });
+    };
+
+    // 3. Trigger initialization based on script load state
+    if (window.google && window.google.accounts) {
       initializeGoogle();
-    
-    }else {
+    } else {
       script.onload = initializeGoogle;
     }
-
-    //document.body.appendChild(script);
-    //return () => document.body.removeChild(script);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleGoogleCredential(googleResponse) {
