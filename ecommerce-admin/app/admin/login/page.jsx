@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
     //script.src = "https://accounts.google.com/gsi/client";
     // script.async = true;
     //script.onload = () => {
-    //if (!window.google || !buttonRef.current) return;
+    if (!window.google || !buttonRef.current) return;
       window.google.accounts.id.initialize({
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
         callback: handleGoogleCredential,
