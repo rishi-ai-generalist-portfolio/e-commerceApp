@@ -41,11 +41,7 @@ export async function POST(request) {
       { status: 401 }
     );
   }
-<<<<<<< HEAD
-  //console.error("Verification failed for token:", id_token, "Error details:", err);
-=======
-  console.error("Verification failed for token:", id_token, "Error details:", err);
->>>>>>> 0ff8948a41de03fea5299e70c95000f3a3b6629b
+  
   // 2. Look up the admins table, case-insensitively.
   const { data: adminRecord, error: dbError } = await supabaseAdmin
     .from("admins")
