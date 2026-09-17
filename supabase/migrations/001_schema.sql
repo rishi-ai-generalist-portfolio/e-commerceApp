@@ -19,7 +19,7 @@
 --      RLS is an open data leak on Supabase (anon key has table access by
 --      default) — flagging this rather than silently shipping it insecure.
 -- ============================================================================
--- Comment
+
 -- Required extensions
 create extension if not exists "pgcrypto";   -- gen_random_uuid()
 create extension if not exists "pg_net";     -- allows triggers to call Edge Functions via HTTP
@@ -34,12 +34,12 @@ create table public.profiles (
   created_at  timestamptz not null default now()
 );
 
+
 comment on table public.profiles is 'Links Supabase auth users to application-level profile data.';
 
 -- ============================================================================
 -- 2. categories
-
--- added 2026-09-16 for Use Case 19 (Catalog Management) to support admin soft-delete of categories; the schema previously had no soft-delete flag here, unlike `products.is_published` |
+-- — added 2026-09-16 for Use Case 19 (Catalog Management) to support admin soft-delete of categories; the schema previously had no soft-delete flag here, unlike `products.is_published` |
 -- ============================================================================
 create table public.categories (
   id    uuid primary key default gen_random_uuid(),
@@ -49,13 +49,13 @@ create table public.categories (
 );
 
 -- ============================================================================
---  admins
+-- . admins
 -- ============================================================================
 create table public.admins (
   id    uuid primary key default gen_random_uuid(),
   admin_name  text not null unique,
-  admin_email  text not null unique,
-  created_at      timestamptz not null default now(),
+  admin_email text not null unique,
+  created_at      timestamptz not null default now()
 );
 
 -- ============================================================================
@@ -150,8 +150,7 @@ create index idx_returns_order_id on public.returns(order_id);
 
 -- ============================================================================
 -- 9. inventory_logs  (supporting table — see notes above)
-
--- every catalog stock adjustment (via `adjust_product_stock()`, see Functions) writes one row here, `change_qty` being the signed delta applied |
+--— every catalog stock adjustment (via `adjust_product_stock()`, see Functions) writes one row here, `change_qty` being the signed delta applied |
 -- ============================================================================
 create table public.inventory_logs (
   id          uuid primary key default gen_random_uuid(),

@@ -14,10 +14,11 @@ export default function AdminLoginPage() {
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [errorMessage, setErrorMessage] = useState("");
 
+  console.log ("Google client id is ",process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
   useEffect(() => {
     // 1. Look for an existing script tag to prevent duplicates during Fast Refresh
     let script = document.getElementById("google-gsi-script");
-   
+    
     if (!script) {
       script = document.createElement("script");
       script.id = "google-gsi-script";
@@ -30,10 +31,10 @@ export default function AdminLoginPage() {
     // 2. Safely bundle the logic inside a named function
     const initializeGoogle = () => {
       if (!window || !window.google || !window.google.accounts || !buttonRef.current) return;
-     
+      
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       console.log("Client id found inside initialize is:", clientId);
-     
+      
       if (!clientId) {
         console.error("CRITICAL: NEXT_PUBLIC_GOOGLE_CLIENT_ID is not loaded.");
         return;
@@ -61,6 +62,7 @@ export default function AdminLoginPage() {
     }
   }, []);
 
+
   async function handleGoogleCredential(googleResponse) {
     setStatus("loading");
     setErrorMessage("");
@@ -71,7 +73,7 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ id_token: googleResponse.credential }),
       });
       const body = await res.json();
-
+      console.log ("Came back here to login page with body ", body);
       if (!res.ok || !body.success) {
         setStatus("error");
         setErrorMessage(body.error || "Authentication failed. Please try again.");

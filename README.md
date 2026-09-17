@@ -1,2 +1,2 @@
 # e-commerceApp
-e-commerce App catering to small time businesses.
+e-Commerce App similar to Amazon.com made for Small to Medium Businesses
