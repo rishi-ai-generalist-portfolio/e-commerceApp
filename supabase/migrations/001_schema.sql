@@ -18,6 +18,7 @@
 --      wasn't requested, but an E-Commerce schema with customer PII and no
 --      RLS is an open data leak on Supabase (anon key has table access by
 --      default) — flagging this rather than silently shipping it insecure.
+--
 -- ============================================================================
 
 -- Required extensions

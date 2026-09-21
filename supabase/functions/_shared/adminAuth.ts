@@ -10,6 +10,7 @@ export class AdminAuthError extends Error {
     super(message);
     this.status = status;
     this.name = "AdminAuthError";
+    
   }
 }
 

@@ -12,7 +12,7 @@
 --    than overwriting with an absolute value, to avoid concurrent-admin
 --    overwrites. The Supabase JS client can't express a raw SQL increment,
 --    so this adds a Postgres function the edge function calls via RPC.
-
+--
 -- 1. Soft-delete flag for categories
 alter table public.categories
   add column if not exists is_active boolean not null default true;
