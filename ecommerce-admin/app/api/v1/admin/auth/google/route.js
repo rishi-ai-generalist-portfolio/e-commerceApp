@@ -41,14 +41,16 @@ export async function POST(request) {
       { status: 401 }
     );
   }
-  
+  //console.error("Verification failed for token:", id_token, "Error details:", err);
   // 2. Look up the admins table, case-insensitively.
   const { data: adminRecord, error: dbError } = await supabaseAdmin
     .from("admins")
     .select("id, admin_email, admin_name")
     .ilike("admin_email", identity.email)
     .maybeSingle();
+  console.log ("I am in auth/google/route.js - i have checked admin is valid");
 
+  
   if (dbError) {
     return NextResponse.json(
       { success: false, error: "Unable to verify administrator status." },
@@ -67,15 +69,25 @@ export async function POST(request) {
       { status: 403 }
     );
   }
-  console.log ("Before signAdminToken ");
-
+  /*console.log ("Before signAdminToken ");
+  // 3. Ensure secret is available
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error("JWT_SECRET is missing from environment variables.");
+    return NextResponse.json(
+      { success: false, error: "Server configuration error." },
+      { status: 500 }
+    );
+  }
+*/
   // 4. Issue the admin JWT.
   const token = signAdminToken({
     adminId: adminRecord.id,
     email: adminRecord.admin_email,
     name: adminRecord.admin_name,
-  });
-  console.log ("After signAdminToken returning token ", token);
+  }  
+  );
+  console.log ("After signAdminToken returning after locking the token");
 
   const response = NextResponse.json({
     success: true,

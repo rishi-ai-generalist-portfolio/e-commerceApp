@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ id_token: googleResponse.credential }),
       });
       const body = await res.json();
-      console.log ("Came back here to login page with body ", body);
+      
       if (!res.ok || !body.success) {
         setStatus("error");
         setErrorMessage(body.error || "Authentication failed. Please try again.");
