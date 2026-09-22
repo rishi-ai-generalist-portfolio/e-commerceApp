@@ -13,7 +13,6 @@
 -- Replace <PROJECT_REF> below with your actual Supabase project reference.
 -- The service role key used in each call comes from Vault (see bottom of
 -- this file) rather than being hardcoded.
---
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------

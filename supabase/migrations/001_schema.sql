@@ -18,7 +18,6 @@
 --      wasn't requested, but an E-Commerce schema with customer PII and no
 --      RLS is an open data leak on Supabase (anon key has table access by
 --      default) — flagging this rather than silently shipping it insecure.
---
 -- ============================================================================
 
 -- Required extensions
@@ -37,6 +36,23 @@ create table public.profiles (
 
 
 comment on table public.profiles is 'Links Supabase auth users to application-level profile data.';
+-- ============================================================================
+-- 1. customer_addresses
+-- ============================================================================
+create table public.customer_addresses (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamp with time zone not null default now(),
+  profile_id uuid not null,
+  address_line1 character varying null,
+  address_line2 character varying null,
+  city character varying null,
+  pincode character varying null,
+  mobilenumber character varying null,
+  constraint customer_addresses_pkey primary key (id),
+  constraint customer_addresses_profile_id_fkey foreign KEY (profile_id) references profiles (id) on update CASCADE on delete CASCADE
+);
+
+
 
 -- ============================================================================
 -- 2. categories
@@ -46,7 +62,8 @@ create table public.categories (
   id    uuid primary key default gen_random_uuid(),
   name  text not null unique,
   slug  text not null unique,
-  is_active boolean not null default true
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
 );
 
 -- ============================================================================
@@ -267,10 +284,3 @@ create policy "Users can create own returns"
 --   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
 -- This wasn't specified in the original brief, so it's left as a follow-up
 -- decision rather than assumed.
-
-alter table public.categories
-  add column if not exists is_active boolean not null default true;
-
-alter table public.categories
-  add column if not exists created_at timestamptz not null default now();
-
