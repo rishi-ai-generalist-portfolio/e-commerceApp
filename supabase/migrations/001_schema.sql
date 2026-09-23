@@ -48,7 +48,6 @@ create table public.customer_addresses (
   city character varying null,
   pincode character varying null,
   mobilenumber character varying null,
-  constraint customer_addresses_pkey primary key (id),
   constraint customer_addresses_profile_id_fkey foreign KEY (profile_id) references profiles (id) on update CASCADE on delete CASCADE
 );
 
@@ -284,3 +283,5 @@ create policy "Users can create own returns"
 --   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
 -- This wasn't specified in the original brief, so it's left as a follow-up
 -- decision rather than assumed.
+
+-- added code to make cart_i
