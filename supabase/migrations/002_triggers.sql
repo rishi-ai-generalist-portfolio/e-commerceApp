@@ -21,16 +21,15 @@
 -- behaviors depend on them; each is called out inline).
 -- ----------------------------------------------------------------------------
 
--- Needed so delivered-review-request doesn't email the same order twice.
-alter table public.orders
-  add column review_email_sent boolean not null default false;
+
 
 -- ----------------------------------------------------------------------------
 -- Vault: store secrets once, reference them from triggers (never hardcode
 -- keys in trigger SQL, since SQL migrations often end up in git history).
 -- ----------------------------------------------------------------------------
-select vault.create_secret('https://<PROJECT_REF>.functions.supabase.co', 'functions_base_url');
-select vault.create_secret('<YOUR_SERVICE_ROLE_KEY>', 'service_role_key');
+select vault.create_secret('https://vdbatqeclynfjecjtyxr.functions.supabase.co', 'functions_base_url');
+select vault.create_secret('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkYmF0cWVjbHluZmplY2p0eXhyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTM1NjYzMywiZXhwIjoyMTA0OTMyNjMzfQ.8-yqOplzQzQMZCOgfskkTI2gI_z4G6diu3xX2l0FuUs', 'service_role_key');
+
 
 -- Helper to call an Edge Function by name with a JSON body
 create or replace function public.call_edge_function(function_name text, payload jsonb)
@@ -41,17 +40,29 @@ as $$
 declare
   base_url text;
   svc_key  text;
+  auth_header_value text;
 begin
   select decrypted_secret into base_url from vault.decrypted_secrets where name = 'functions_base_url';
   select decrypted_secret into svc_key  from vault.decrypted_secrets where name = 'service_role_key';
+
+-- 2. Fallback to an empty string if vault returns null to avoid breaking the JSON payload
+  if svc_key is null then
+    auth_header_value := 'Bearer unknown_token';
+  else
+    auth_header_value := 'Bearer ' || svc_key;
+  end if;
+  if base_url is null then
+    base_url := 'https://supabase.co'; -- Fallback to project domain
+  end if;
 
   perform net.http_post(
     url     := base_url || '/' || function_name,
     headers := jsonb_build_object(
                  'Content-Type', 'application/json',
-                 'Authorization', 'Bearer ' || svc_key
+                 'Authorization', auth_header_value
                ),
-    body    := payload
+    body    := payload::text,
+    timeout_ms := 5000
   );
 end;
 $$;
@@ -83,7 +94,7 @@ language plpgsql
 security definer
 as $$
 begin
-  if new.status = 'Shipped' and old.status is distinct from 'Shipped' then
+  if new.order_shipping_status = 'Shipped' and old.order_shipping_status is distinct from 'Shipped' then
     perform public.call_edge_function('shipment-dispatched', jsonb_build_object('order_id', new.id));
   end if;
   return new;
@@ -100,7 +111,7 @@ create trigger trg_order_shipped
 -- ============================================================================
 alter table public.orders drop constraint if exists orders_status_check;
 alter table public.orders add constraint orders_status_check
-  check (status in ('Pending','Processing','Shipped','Out for Delivery','Delivered','Cancelled'));
+  check (order_shipping_status in ('Processing','Shipped','Out for Delivery','Delivered','Cancelled'));
 
 create or replace function public.trg_fn_out_for_delivery()
 returns trigger
@@ -108,7 +119,7 @@ language plpgsql
 security definer
 as $$
 begin
-  if new.status = 'Out for Delivery' and old.status is distinct from 'Out for Delivery' then
+  if new.order_shipping_status = 'Out for Delivery' and old.order_shipping_status is distinct from 'Out for Delivery' then
     perform public.call_edge_function('out-for-delivery', jsonb_build_object('order_id', new.id));
   end if;
   return new;
@@ -162,7 +173,7 @@ language plpgsql
 security definer
 as $$
 begin
-  if new.status = 'Refunded' and old.status is distinct from 'Refunded' then
+  if new.status = 'payment_refunded' and old.status is distinct from 'payment_refunded' then
     perform public.call_edge_function('refund-processed', jsonb_build_object('return_id', new.id));
   end if;
   return new;
