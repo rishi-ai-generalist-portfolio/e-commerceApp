@@ -19,7 +19,8 @@
 -- its own it would keep exposing soft-deleted categories to storefront
 -- reads even after this column exists. Tighten it so the DB itself
 -- enforces the soft-delete, not just app-level query filters.
-drop policy if exists "Public can view categories" on public.categories;
+
+drop policy if exists "Public can view active categories" on public.categories;
 
 create policy "Public can view active categories"
   on public.categories
