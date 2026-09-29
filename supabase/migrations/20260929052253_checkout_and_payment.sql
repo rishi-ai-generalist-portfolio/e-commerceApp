@@ -259,6 +259,11 @@ grant execute on function public.get_order_payment_status(uuid) to authenticated
 
 -- Enable RLS (if not already on)
 alter table public.customer_addresses enable row level security;
+DROP POLICY IF EXISTS "Users can view own addresses" ON public.customer_addresses;
+DROP POLICY IF EXISTS "Users can insert own addresses" ON public.customer_addresses;
+DROP POLICY IF EXISTS "Users can update own addresses" ON public.customer_addresses;
+DROP POLICY IF EXISTS "Users can delete own addresses" ON public.customer_addresses;
+
 
 -- Users can view their own addresses
 create policy "Users can view own addresses"
@@ -275,7 +280,7 @@ create policy "Users can insert own addresses"
   with check (auth.uid() = profile_id);
 
 -- Users can update their own addresses
-create policy "Users can update own addresses"
+create policy  "Users can update own addresses"
   on public.customer_addresses
   for update
   to public
@@ -283,7 +288,7 @@ create policy "Users can update own addresses"
   with check (auth.uid() = profile_id);
 
 -- Users can delete their own addresses
-create policy "Users can delete own addresses"
+create policy  "Users can delete own addresses"
   on public.customer_addresses
   for delete
   to public
