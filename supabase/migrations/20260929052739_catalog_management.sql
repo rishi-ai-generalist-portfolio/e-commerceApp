@@ -13,7 +13,7 @@
 --    overwrites. The Supabase JS client can't express a raw SQL increment,
 --    so this adds a Postgres function the edge function calls via RPC.
 
--
+
   
 -- The existing "Public can view categories" policy is USING (true), so on
 -- its own it would keep exposing soft-deleted categories to storefront
