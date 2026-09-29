@@ -134,7 +134,8 @@ create table public.orders (
   tracking_number    text,
   review_email_sent boolean not null default false,
   created_at         timestamptz not null default now(),
-  updated_at         timestamptz not null default now()
+  updated_at         timestamptz not null default now(),
+  razorpay_order_id  text
 );
 
 create index idx_orders_customer_id on public.orders(customer_id);

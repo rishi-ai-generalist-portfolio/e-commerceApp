@@ -1,8 +1,8 @@
 
 
 --- Added column to orders table to store the Razorpay order ID for payment verification
-alter table public.orders
-  add column razorpay_order_id text;
+--alter table public.orders
+ -- add column razorpay_order_id c;
 
 -- Speeds up the lookup in /api/v1/payments/verify
 create index if not exists orders_razorpay_order_id_idx
