@@ -1,0 +1,85 @@
+erDiagram
+  auth_users ||--|| profiles : "id"
+  profiles ||--o{ customer_addresses : owns
+  profiles ||--o| carts : owns
+  carts ||--o{ cart_items : contains
+  products ||--o{ cart_items : selected
+  categories o|--o{ products : classifies
+  profiles ||--o{ orders : places
+  orders ||--o{ order_items : snapshots
+  products o|--o{ order_items : referenced
+  orders ||--o{ payment_records : paid_by
+  orders ||--o{ returns : may_have
+  products ||--o{ inventory_logs : audited_by
+  admins {
+    uuid id PK
+    text admin_name
+    text admin_email UK
+  }
+  profiles {
+    uuid id PK_FK
+    text email UK
+    text full_name
+  }
+  customer_addresses {
+    uuid id PK
+    uuid profile_id FK
+    text address_fields
+  }
+  categories {
+    uuid id PK
+    text name UK
+    text slug UK
+    boolean is_active
+  }
+  products {
+    uuid id PK
+    uuid category_id FK
+    numeric price
+    integer stock_quantity
+    boolean is_published
+  }
+  carts {
+    uuid id PK
+    uuid profile_id FK_UK
+  }
+  cart_items {
+    uuid id PK
+    uuid cart_id FK
+    uuid product_id FK
+    integer quantity
+  }
+  orders {
+    uuid id PK
+    uuid customer_id FK
+    numeric total_amount
+    text status
+    text order_shipping_status
+    jsonb shipping_address
+    text razorpay_order_id
+  }
+  order_items {
+    uuid id PK
+    uuid order_id FK
+    uuid product_id FK_nullable
+    integer quantity
+    numeric price_at_purchase
+  }
+  payment_records {
+    uuid id PK
+    uuid order_id FK
+    numeric amount
+    text utr_number UK
+  }
+  returns {
+    uuid id PK
+    uuid order_id FK
+    text status
+  }
+  inventory_logs {
+    uuid id PK
+    uuid product_id FK
+    integer change_qty
+    text reason
+    uuid reference_id
+  }

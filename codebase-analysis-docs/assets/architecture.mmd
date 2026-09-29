@@ -1,0 +1,27 @@
+flowchart LR
+  Buyer[Customer browser] --> Store[ecommerce-customer Next.js]
+  Store -->|public reads and user JWT| DB[(Supabase Postgres + RLS)]
+  Store -->|server API / service role| RZP[Razorpay]
+  RZP -->|signed callback / webhook| Store
+  Admin[Admin browser] --> AdminApp[ecommerce-admin Next.js]
+  AdminApp -->|Google ID token| Google[Google Identity]
+  AdminApp -->|service-role API + admin JWT| EF[Supabase Edge Functions]
+  EF --> DB
+  EF --> Storage[Supabase public images bucket]
+  DB -->|pg_net triggers + pg_cron| MailFns[Notification Edge Functions]
+  MailFns --> Resend[Resend]
+
+sequenceDiagram
+  participant C as Customer
+  participant N as Customer Next.js API
+  participant R as Razorpay
+  participant D as Supabase DB
+  C->>N: POST orders/create (JWT, address)
+  N->>D: Read cart/products, create pending order/items, reserve stock
+  N->>R: Create Razorpay order
+  R-->>C: Checkout payment result
+  C->>N: POST payments/verify (signature fields)
+  N->>R: Verify HMAC locally
+  N->>D: Current route directly sets paid, clears cart
+  R-->>N: Signed webhook (also independently updates paid)
+  Note over D: SQL migration separately defines payment_records + atomic finalizer; current route pair does not call it
