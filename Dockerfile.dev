@@ -7,11 +7,9 @@ WORKDIR /app
 # Step 3: Copy workspace configurations and package files first to leverage Docker cache
 COPY package*.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 
-
-
-# Explicitly create and target the specific project directories
-COPY ecommerce-admin/package.json ./ecommerce-admin/package.json
-COPY ecommerce-customer/package.json ./ecommerce-customer/package.json
+# Copy package json manifests of individual apps so pnpm can resolve dependencies
+COPY ecommerce-admin/package*.json ./ecommerce-admin/
+COPY ecommerce-customer/package*.json ./ecommerce-customer/
 
 # Enable corepack to use pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -29,7 +27,4 @@ EXPOSE 3001
 ENV WATCHPACK_POLLING=true
 
 # Step 7: Boot up both development servers concurrently using pnpm workspace filter
-#CMD ["pnpm", "--filter", "*", "run", "dev"]
-# Replace the old step 7 with a generic default command
 CMD ["pnpm", "run", "dev"]
-

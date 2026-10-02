@@ -1,13 +1,14 @@
 services:
   ecommerce-admin:
     build:
-      context: .
+      context: .                           # Looks at workspace root
       dockerfile: Dockerfile.dev
-    container_name: ecommerce-admin-app
+    container_name: ecommerce-admin
+    command: pnpm --filter ecommerce-admin run dev
     ports:
-      - "3000:3000"
+      - "3000:3000"                       # Admin Port
     env_file:
-      - ./.env.local
+      - ./.env.local                      # Reference path at root
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
@@ -16,17 +17,17 @@ services:
       - /app/node_modules
       - /app/ecommerce-admin/node_modules
       - /app/ecommerce-admin/.next
-    command: pnpm --filter ecommerce-admin run dev
 
   ecommerce-customer:
     build:
-      context: .
+      context: .                           # Looks at workspace root
       dockerfile: Dockerfile.dev
-    container_name: ecommerce-customer-app
+    container_name: ecommerce-customer
+    command: pnpm --filter ecommerce-customer run dev
     ports:
-      - "3001:3001"
+      - "3001:3001"                       # Customer Port
     env_file:
-      - ./.env.local
+      - ./.env.local                      # Reference path at root
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
@@ -35,4 +36,3 @@ services:
       - /app/node_modules
       - /app/ecommerce-customer/node_modules
       - /app/ecommerce-customer/.next
-    command: pnpm --filter ecommerce-customer run dev
