@@ -6,6 +6,8 @@ import CartDrawer from '../components/CartDrawer';
 import AuthModal from '../components/auth/AuthModal';
 import ChatWidget from '../components/chatbot/ChatWidget';
 
+
+
 // To this:
 
 import { ToastProvider } from '../components/ToastHost';
